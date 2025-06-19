@@ -7,7 +7,7 @@ API_ID = int(environ.get("API_ID", "xxxxxxxxx"))
 API_HASH = environ.get("API_HASH", "xxxxxxxxxxxxxxxxxxxxxxx")
 BOT_TOKEN = environ.get("BOT_TOKEN", "")
 OWNER = int(environ.get("OWNER", "6978232852"))
-CREDIT = "𝙎𝘼𝙄𝙉𝙄 𝘽𝙊𝙏𝙎"
+CREDIT = "<blockquote>[𝗖𝗛𝗢𝗦𝗘𝗡 𝗢𝗡𝗘 ⚝](http://t.me/CHOSEN_ONEx_bot)</blockquote>"
 AUTH_USER = os.environ.get('AUTH_USERS', '6978232852').split(',')
 AUTH_USERS = [int(user_id) for user_id in AUTH_USER]
 if int(OWNER) not in AUTH_USERS:
