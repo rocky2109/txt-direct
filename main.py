@@ -865,11 +865,38 @@ async def txt_handler(bot: Client, m: Message):
     success_count = len(links) - failed_count
     video_count = v2_count + mpd_count + m3u8_count + yt_count + drm_count + zip_count + other_count
     if raw_text7 == "/d":
-        await bot.send_message(channel_id, f"<b>-┈━═.•°✅ Completed ✅°•.═━┈-</b>\n<blockquote><b>🎯Batch Name : {b_name}</b></blockquote>\n<blockquote>🔗 Total URLs: {len(links)} \n┃   ┠🔴 Total Failed URLs: {failed_count}\n┃   ┠🟢 Total Successful URLs: {success_count}\n┃   ┃   ┠🎥 Total Video URLs: {video_count}\n┃   ┃   ┠📄 Total PDF URLs: {pdf_count}\n┃   ┃   ┠📸 Total IMAGE URLs: {img_count}</blockquote>\n")
-    else:
-        await bot.send_message(channel_id, f"<b>-┈━═.•°✅ Completed ✅°•.═━┈-</b>\n<blockquote><b>🎯Batch Name : {b_name}</b></blockquote>\n<blockquote>🔗 Total URLs: {len(links)} \n┃   ┠🔴 Total Failed URLs: {failed_count}\n┃   ┠🟢 Total Successful URLs: {success_count}\n┃   ┃   ┠🎥 Total Video URLs: {video_count}\n┃   ┃   ┠📄 Total PDF URLs: {pdf_count}\n┃   ┃   ┠📸 Total IMAGE URLs: {img_count}</blockquote>\n")
-        await bot.send_message(m.chat.id, f"<blockquote><b>✅ Your Task is completed, please check your Set Channel📱</b></blockquote>")
+        await bot.send_message(
+            channel_id,
+            f"""
+        <b>┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓</b>
+        <b>┃  ⚡ <i>PROCESS COMPLETED!</i> ⚡  ┃</b>
+        <b>┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛</b>
 
+        <b>🔮 <u>BATCH</u>:</b> <code>{b_name}</code>
+
+        <b>📊 <u>ANALYTICS</u>:</b>
+        ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+        ┣ 🔗 <b>Total URLs:</b> <code>{len(links)}</code>
+        ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫
+        ┣ 🔴 <b>Failed:</b> {failed_count}
+        ┣ 🟢 <b>Success:</b> {success_count}
+        ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫
+        ┣ 🎬 <b>Videos:</b> {video_count}
+        ┣ 📜 <b>PDFs:</b> {pdf_count}
+        ┣ 🖼️ <b>Images:</b> {img_count}
+        ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+        <b>⏱️ <u>Timestamp</u>:</b> <code>{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</code>
+        """
+        )
+
+        await bot.send_message(
+            m.chat.id,
+            f"""
+        <b>✨ <u>TASK SUCCESS!</u></b>
+        <i>🚀 Powered by: [Your Bot Name]</i>
+        """
+        )
 
 @bot.on_message(filters.text & filters.private)
 async def text_handler(bot: Client, m: Message):
