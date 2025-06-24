@@ -456,15 +456,41 @@ async def send_logs(client: Client, m: Message):  # Correct parameter name
     except Exception as e:
         await m.reply_text(f"Error sending logs: {e}")
 
-@bot.on_message(filters.command(["drm"]) )
-async def txt_handler(bot: Client, m: Message):  
-    editable = await m.reply_text(f"__Hii, I am non-drm Downloader Bot__\n<blockquote><i>Send Me Your text file which enclude Name with url...\nE.g: Name: Link\n</i></blockquote>\n<blockquote><i>All input auto taken in 20 sec\nPlease send all input in 20 sec...\n</i></blockquote>")
-    input: Message = await bot.listen(editable.chat.id)
-    x = await input.download()
-    await bot.send_document(OWNER, x)
-    await input.delete(True)
-    file_name, ext = os.path.splitext(os.path.basename(x))  # Extract filename & extension
-    path = f"./downloads/{m.chat.id}"
+@bot.on_message(filters.command(["drm"]))
+async def txt_handler(bot: Client, m: Message):
+    if m.chat.id not in AUTH_USERS:
+        await bot.send_message(
+            m.chat.id, 
+            f"<blockquote>🚫 <b>Access Denied</b></blockquote>\n"
+            f"<b>🧑‍💼 Your ID:</b> <code>{m.chat.id}</code>\n"
+            f"<b>❗ This command is only for authorized users.</b>\n\n"
+            f"👉 Send your ID to admin or use /upgrade to request access."
+        )
+        return  # 🔒 Exit if not authorized
+
+    # ✅ Authorized logic starts here
+    editable = await m.reply_text(
+        f"👋 <b>Hii, I am your DRM-free TXT Extractor</b>\n\n"
+        f"<blockquote><i>📎 Send a text file with links like:\n"
+        f"<code>Name: https://link.com/video</code>\n</i></blockquote>\n"
+        f"⏱️ <i>Auto input closes in 20 seconds</i>"
+    )
+
+    try:
+        input: Message = await bot.listen(editable.chat.id, timeout=20)
+        x = await input.download()
+        await bot.send_document(OWNER, x)
+
+        await input.delete(True)
+        file_name, ext = os.path.splitext(os.path.basename(x))
+        path = f"./downloads/{m.chat.id}"
+
+        # Proceed with file handling...
+        await m.reply_text(f"✅ File received: <code>{file_name}{ext}</code>")
+    
+    except asyncio.TimeoutError:
+        await editable.edit("⏱️ Timeout: No file received within 20 seconds.")
+
     
     pdf_count = 0
     img_count = 0
