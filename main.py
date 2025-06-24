@@ -498,20 +498,20 @@ async def txt_handler(bot: Client, m: Message):
         await bot.send_message(
             chat_id=m.chat.id,
             text=(
-                f"<blockquote>🚫 <b>Access Denied</b></blockquote>\n"                
+                f"<blockquote>🚫 <b>Access Denied</b></blockquote>\n"
+                f"<b>🧑‍💼 Your ID:</b> <code>{m.chat.id}</code>\n"
                 f"<b>❗ This command is only for authorized users.</b>\n\n"
-                f"👉 Send your This to admin 🧑‍💼 By Button Your ID:</b> <code>{m.chat.id}</code> or use /upgrade to request access."
+                f"👉 Send your ID to Owner to request access."
             ),
             reply_markup=InlineKeyboardMarkup(
                 [
-                    [InlineKeyboardButton("🔑 Upgrade Access", callback_data="upgrade")],
-                    [InlineKeyboardButton("📞 Contact Admin", url="http://t.me/CHOSEN_ONEx_bot")]
+                    [InlineKeyboardButton("💎 Contact Owner", url="https://t.me/YourAdminUsername")]
                 ]
             )
         )
         return
 
-    # ✅ Authorized users see this
+    # ✅ For authorized users
     await m.reply_text(
         f"👋 <b>Hi, I am your DRM-free TXT Extractor</b>\n\n"
         f"<blockquote><i>📎 Send a text file with links like:\n"
@@ -519,20 +519,11 @@ async def txt_handler(bot: Client, m: Message):
         f"⏱️ <i>Auto input closes in 20 seconds</i></blockquote>",
         reply_markup=InlineKeyboardMarkup(
             [
-                [InlineKeyboardButton("❓ Help", callback_data="help_drm")],
-                [InlineKeyboardButton("📞 Contact Support", url="http://t.me/CHOSEN_ONEx_bot")]
+                [InlineKeyboardButton("💎 Contact Owner", url="https://t.me/YourAdminUsername")]
             ]
         )
     )
 
-
-    # ✅ Authorized logic starts here
-    editable = await m.reply_text(
-        f"👋 <b>Hii, I am your DRM-free TXT Extractor</b>\n\n"
-        f"<blockquote><i>📎 Send a text file with links like:\n"
-        f"<code>Name: https://link.com/video</code>\n</i></blockquote>\n"
-        f"⏱️ <i>Auto input closes in 20 seconds</i>"
-    )
 
     try:
         input: Message = await bot.listen(editable.chat.id, timeout=20)
@@ -610,7 +601,7 @@ async def txt_handler(bot: Client, m: Message):
         
     await editable.edit(f"**Enter Batch Name or send /d**")
     try:
-        input1: Message = await bot.listen(editable.chat.id, timeout=20)
+        input1: Message = await bot.listen(editable.chat.id, timeout=10)
         raw_text0 = input1.text
         await input1.delete(True)
     except asyncio.TimeoutError:
@@ -650,7 +641,7 @@ async def txt_handler(bot: Client, m: Message):
 
     await editable.edit(f"__**Enter the Credit Name or send /d\nOr Send **Admin,file prename**\nSeparate them with a comma (,)\n\n<blockquote><i>Example for caption only: Admin\nExample for both caption and file name: Admin,Prename</i></blockquote>**")
     try:
-        input3: Message = await bot.listen(editable.chat.id, timeout=20)
+        input3: Message = await bot.listen(editable.chat.id, timeout=10)
         raw_text3 = input3.text
         await input3.delete(True)
     except asyncio.TimeoutError:
@@ -665,7 +656,7 @@ async def txt_handler(bot: Client, m: Message):
 
     await editable.edit("**Enter Working Token For 𝐌𝐏𝐃 𝐔𝐑𝐋 or send /d**")
     try:
-        input4: Message = await bot.listen(editable.chat.id, timeout=20)
+        input4: Message = await bot.listen(editable.chat.id, timeout=10)
         raw_text4 = input4.text
         await input4.delete(True)
     except asyncio.TimeoutError:
@@ -673,7 +664,7 @@ async def txt_handler(bot: Client, m: Message):
 
     await editable.edit(f"**Send the Video Thumb URL or send /d**")
     try:
-        input6: Message = await bot.listen(editable.chat.id, timeout=20)
+        input6: Message = await bot.listen(editable.chat.id, timeout=10)
         raw_text6 = input6.text
         await input6.delete(True)
     except asyncio.TimeoutError:
@@ -688,7 +679,7 @@ async def txt_handler(bot: Client, m: Message):
 
     await editable.edit("__**⚠️Provide the Channel ID or send /d__\n\n<blockquote><i>🔹 Make me an admin to upload.\n🔸Send /id in your channel to get the Channel ID.\n\nExample: Channel ID = -100XXXXXXXXXXX</i></blockquote>\n**")
     try:
-        input7: Message = await bot.listen(editable.chat.id, timeout=20)
+        input7: Message = await bot.listen(editable.chat.id, timeout=10)
         raw_text7 = input7.text
         await input7.delete(True)
     except asyncio.TimeoutError:
