@@ -495,7 +495,7 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 @bot.on_message(filters.command(["drm"]))
 async def txt_handler(bot: Client, m: Message):
     # ✅ Allow ONLY OWNER to use this command
-    if m.chat.id != OWNER:
+    if m.chat.id != OWNER and m.chat.id not in AUTH_USERS:
         print(f"User ID not authorized: {m.chat.id}")
         await bot.send_message(
             m.chat.id,
