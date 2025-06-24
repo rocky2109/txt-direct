@@ -365,29 +365,39 @@ async def start(bot, m: Message):
     )
 
 @bot.on_message(filters.command(["upgrade"]))
-async def id_command(client, message: Message):
+async def id_command(client: Client, message: Message):
     chat_id = message.chat.id
+
+    # ✅ Restrict to OWNER only
+    if chat_id != OWNER:
+        await message.reply_text(
+            f"🚫 <b>Access Denied!</b>\n\n"
+            f"Only the bot admin is allowed to use this command.\n"
+            f"Your User ID: <code>{chat_id}</code>\n\n"
+            f"Send your ID to admin if you need access."
+        )
+        return
+
+    # ✅ Owner access: send full upgrade info
     await message.reply_text(
-        f" 🎉 Welcome {message.from_user.first_name} to DRM Bot! 🎉\n\n"
-           f"You can have access to download all Non-DRM+AES Encrypted URLs 🔐 including\n\n"
-           f"Use Command : /help to get started 🌟\n\n"
-           f"<blockquote>• 📚 Appx Zip+Encrypted Url\n"
-           f"• 🎓 Classplus DRM+ NDRM\n"
-           f"• 🧑‍🏫 PhysicsWallah DRM\n"
-           f"• 📚 CareerWill + PDF\n"
-           f"• 🎓 Khan GS\n"
-           f"• 🎓 Study Iq DRM\n"
-           f"• 🚀 APPX + APPX Enc PDF\n"
-           f"• 🎓 Vimeo Protection\n"
-           f"• 🎓 Brightcove Protection\n"
-           f"• 🎓 Visionias Protection\n"
-           f"• 🎓 Zoom Video\n"
-           f"• 🎓 Utkarsh Protection(Video + PDF)\n"
-           f"• 🎓 All Non DRM+AES Encrypted URLs\n"
-           f"• 🎓 MPD URLs if the key is known (e.g., Mpd_url?key=key XX:XX)</blockquote>\n\n"
-           f"<b>💵 Monthly Plan: free</b>\n\n"
-           f"If you want to buy membership of the bot, feel free to contact the Bot Admin.\n", disable_web_page_preview=True, reply_markup=BUTTONSCONTACT
-    )  
+        f"🎉 Welcome <b>{message.from_user.first_name}</b> to <b>DRM Pro Bot</b>! 🔥\n\n"
+        f"🚀 You now have access to download all <b>Non-DRM + Encrypted</b> content 🔐\n\n"
+        f"<b>📌 Supported Services:</b>\n"
+        f"<blockquote>• 📚 Appx Zip + Encrypted URLs\n"
+        f"• 🎓 Classplus DRM + NDRM\n"
+        f"• 🧑‍🏫 PhysicsWallah DRM\n"
+        f"• 📚 CareerWill + PDFs\n"
+        f"• 🎓 Khan GS + StudyIQ\n"
+        f"• 🎓 APPX Encrypted PDFs\n"
+        f"• 🎥 Vimeo + Brightcove + Zoom\n"
+        f"• 🎓 Utkarsh (Video + PDF)\n"
+        f"• 🔑 MPD URLs (if key provided)\n"
+        f"• 💎 & More Non-DRM Resources</blockquote>\n\n"
+        f"<b>💵 Monthly Plan:</b> Free 🔥\n"
+        f"📞 Contact admin to request lifetime premium 💎",
+        disable_web_page_preview=True,
+        reply_markup=BUTTONSCONTACT
+    )
 
 @bot.on_message(filters.command(["id"]))
 async def id_command(client, message: Message):
@@ -456,17 +466,42 @@ async def send_logs(client: Client, m: Message):  # Correct parameter name
     except Exception as e:
         await m.reply_text(f"Error sending logs: {e}")
 
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+
 @bot.on_message(filters.command(["drm"]))
 async def txt_handler(bot: Client, m: Message):
     if m.chat.id not in AUTH_USERS:
         await bot.send_message(
-            m.chat.id, 
-            f"<blockquote>🚫 <b>Access Denied</b></blockquote>\n"
-            f"<b>🧑‍💼 Your ID:</b> <code>{m.chat.id}</code>\n"
-            f"<b>❗ This command is only for authorized users.</b>\n\n"
-            f"👉 Send your ID to admin or use /upgrade to request access."
+            chat_id=m.chat.id,
+            text=(
+                f"<blockquote>🚫 <b>Access Denied</b></blockquote>\n"
+                f"<b>🧑‍💼 Your ID:</b> <code>{m.chat.id}</code>\n"
+                f"<b>❗ This command is only for authorized users.</b>\n\n"
+                f"👉 Send your ID to admin or use /upgrade to request access."
+            ),
+            reply_markup=InlineKeyboardMarkup(
+                [
+                    [InlineKeyboardButton("🔑 Upgrade Access", callback_data="upgrade")],
+                    [InlineKeyboardButton("📞 Contact Admin", url="https://t.me/YourAdminUsername")]
+                ]
+            )
         )
-        return  # 🔒 Exit if not authorized
+        return
+
+    # ✅ Authorized users see this
+    await m.reply_text(
+        f"👋 <b>Hi, I am your DRM-free TXT Extractor</b>\n\n"
+        f"<blockquote><i>📎 Send a text file with links like:\n"
+        f"<code>Name: https://link.com/video</code>\n</i></blockquote>\n"
+        f"⏱️ <i>Auto input closes in 20 seconds</i></blockquote>",
+        reply_markup=InlineKeyboardMarkup(
+            [
+                [InlineKeyboardButton("❓ Help", callback_data="help_drm")],
+                [InlineKeyboardButton("📞 Contact Support", url="https://t.me/YourAdminUsername")]
+            ]
+        )
+    )
+
 
     # ✅ Authorized logic starts here
     editable = await m.reply_text(
