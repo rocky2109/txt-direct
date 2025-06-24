@@ -295,6 +295,7 @@ async def download_and_decrypt_video(url, cmd, name, key):
 async def send_vid(bot: Client, m: Message, cc, filename, thumb, name, prog, channel_id):
     import subprocess, os, time
 
+    # Helper to get resolution
     def get_resolution(path):
         try:
             result = subprocess.run(
@@ -310,23 +311,26 @@ async def send_vid(bot: Client, m: Message, cc, filename, thumb, name, prog, cha
         except:
             return 1280, 720
 
-    # Ensure .mp4 with faststart
+    # Make video streamable if not already
     if not filename.endswith(".mp4"):
         fixed = f"fixed_{os.path.basename(filename).rsplit('.', 1)[0]}.mp4"
-        subprocess.run(f'ffmpeg -y -i "{filename}" -c copy -movflags +faststart "{fixed}"', shell=True)
+        subprocess.run(f'ffmpeg -y -i "{filename}" -c copy -movflags +faststart \"{fixed}\"', shell=True)
         if os.path.exists(fixed):
             os.remove(filename)
             filename = fixed
 
-    # Thumbnail
-    subprocess.run(f'ffmpeg -i "{filename}" -ss 00:00:10 -vframes 1 "{filename}.jpg"', shell=True)
+    # Generate thumbnail
+    subprocess.run(f'ffmpeg -i \"{filename}\" -ss 00:00:10 -vframes 1 \"{filename}.jpg\"', shell=True)
     await prog.delete(True)
 
-    # Use reply-based upload
-    reply_to = m.id  # reply to the original command message
+    # Handle reply and thread
     topic_id = m.message_thread_id if channel_id == m.chat.id and m.message_thread_id else None
+    reply_to = m.id  # Reply to the /drm command itself
 
-    # Generate thumbnail
+    # Tag the user
+    user_tag = f"<a href='tg://user?id={m.from_user.id}'>{m.from_user.first_name}</a>"
+    caption = f"{cc}\n\n<b>👤 Requested by:</b> {user_tag}"
+
     try:
         thumbnail = f"{filename}.jpg" if thumb == "/d" else thumb
     except:
@@ -336,11 +340,13 @@ async def send_vid(bot: Client, m: Message, cc, filename, thumb, name, prog, cha
     width, height = get_resolution(filename)
     start_time = time.time()
 
+    # Try sending as streamable video
     try:
         await bot.send_video(
             chat_id=channel_id,
             video=filename,
-            caption=cc,
+            caption=caption,
+            parse_mode="HTML",
             thumb=thumbnail,
             duration=dur,
             supports_streaming=True,
@@ -352,18 +358,19 @@ async def send_vid(bot: Client, m: Message, cc, filename, thumb, name, prog, cha
             progress_args=(m, start_time)
         )
     except Exception as e:
-        print("⚠️ Failed to upload as video, sending as document:", e)
+        print("⚠️ Upload failed as video. Sending as document:", e)
         await bot.send_document(
             chat_id=channel_id,
             document=filename,
-            caption=cc,
+            caption=caption,
+            parse_mode="HTML",
             reply_to_message_id=reply_to,
             message_thread_id=topic_id,
             progress=progress_bar,
             progress_args=(m, start_time)
         )
 
-    # Cleanup
+    # Clean up
     if os.path.exists(filename):
         os.remove(filename)
     if os.path.exists(f"{filename}.jpg"):
