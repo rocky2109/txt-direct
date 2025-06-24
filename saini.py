@@ -293,27 +293,83 @@ async def download_and_decrypt_video(url, cmd, name, key):
             return None  
 
 async def send_vid(bot: Client, m: Message, cc, filename, thumb, name, prog, channel_id):
+    import subprocess, time, os
+
+    # 🔧 Helper to get video resolution
+    def get_resolution(path):
+        try:
+            result = subprocess.run(
+                [
+                    "ffprobe", "-v", "error", "-select_streams", "v:0",
+                    "-show_entries", "stream=width,height", "-of", "csv=s=x:p=0", path
+                ],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT
+            )
+            width, height = result.stdout.decode().strip().split('x')
+            return int(width), int(height)
+        except Exception as e:
+            print("⚠️ Resolution detection failed:", e)
+            return 1280, 720  # fallback resolution
+
+    # 🖼️ Generate thumbnail
     subprocess.run(f'ffmpeg -i "{filename}" -ss 00:00:10 -vframes 1 "{filename}.jpg"', shell=True)
-    await prog.delete (True)
-    reply1 = await bot.send_message(channel_id, f"**💀 Uploading...💀:-**\n<blockquote>**{name}**</blockquote>")
-    reply = await m.reply_text(f"**Generate Thumbnail:**\n<blockquote>**{name}**</blockquote>")
+    await prog.delete(True)
+
+    # 🧵 Get topic/thread ID (for supergroups with topics)
+    topic_id = m.message_thread_id if m.chat.type in ["supergroup", "group"] and m.message_thread_id else None
+
+    # 🔔 Notify starting upload
+    reply1 = await bot.send_message(
+        chat_id=channel_id,
+        text=f"**💀 Uploading...💀:-**\n<blockquote>**{name}**</blockquote>",
+        message_thread_id=topic_id
+    )
+
+    reply = await m.reply_text(
+        f"**Generate Thumbnail:**\n<blockquote>**{name}**</blockquote>"
+    )
+
+    # 🖼️ Select thumbnail
     try:
-        if thumb == "/d":
-            thumbnail = f"{filename}.jpg"
-        else:
-            thumbnail = thumb
-            
+        thumbnail = f"{filename}.jpg" if thumb == "/d" else thumb
     except Exception as e:
         await m.reply_text(str(e))
-      
+        return
+
+    # 🕒 Duration and Resolution
     dur = int(duration(filename))
+    width, height = get_resolution(filename)
     start_time = time.time()
 
+    # 🎬 Upload video or fallback to document
     try:
-        await bot.send_video(channel_id, filename, caption=cc, supports_streaming=True, height=720, width=1280, thumb=thumbnail, duration=dur, progress=progress_bar, progress_args=(reply, start_time))
-    except Exception:
-        await bot.send_document(channel_id, filename, caption=cc, progress=progress_bar, progress_args=(reply, start_time))
-    os.remove(filename)
+        await bot.send_video(
+            chat_id=channel_id,
+            video=filename,
+            caption=cc,
+            thumb=thumbnail,
+            duration=dur,
+            supports_streaming=True,
+            width=width,
+            height=height,
+            progress=progress_bar,
+            progress_args=(reply, start_time),
+            message_thread_id=topic_id
+        )
+    except Exception as e:
+        print(f"❌ Video upload failed, sending as document. Reason: {e}")
+        await bot.send_document(
+            chat_id=channel_id,
+            document=filename,
+            caption=cc,
+            progress=progress_bar,
+            progress_args=(reply, start_time),
+            message_thread_id=topic_id
+        )
+
+    # 🧹 Cleanup
     await reply.delete(True)
     await reply1.delete(True)
+    os.remove(filename)
     os.remove(f"{filename}.jpg")
