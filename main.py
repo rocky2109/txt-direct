@@ -466,6 +466,30 @@ async def send_logs(client: Client, m: Message):  # Correct parameter name
     except Exception as e:
         await m.reply_text(f"Error sending logs: {e}")
 
+@bot.on_callback_query()
+async def callback_handler(client: Client, callback_query):
+    data = callback_query.data
+    user_id = callback_query.from_user.id
+
+    if data == "upgrade":
+        await callback_query.message.edit_text(
+            f"🔐 To upgrade, please contact the admin.\n\n"
+            f"<b>Your ID:</b> <code>{user_id}</code>\n"
+            f"💬 Send this ID to <a href='https://t.me/YourAdminUsername'>@YourAdminUsername</a> to get access.",
+            disable_web_page_preview=True
+        )
+
+    elif data == "help_drm":
+        await callback_query.message.edit_text(
+            "📘 <b>TXT File Format Help:</b>\n\n"
+            "Each line must contain a name and a valid link.\n"
+            "Example:\n"
+            "<code>Lecture 1: https://example.com/video.m3u8</code>\n\n"
+            "📎 Then just send the file. The bot will extract and begin downloading.",
+            disable_web_page_preview=True
+        )
+
+
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 @bot.on_message(filters.command(["drm"]))
@@ -474,15 +498,14 @@ async def txt_handler(bot: Client, m: Message):
         await bot.send_message(
             chat_id=m.chat.id,
             text=(
-                f"<blockquote>🚫 <b>Access Denied</b></blockquote>\n"
-                f"<b>🧑‍💼 Your ID:</b> <code>{m.chat.id}</code>\n"
+                f"<blockquote>🚫 <b>Access Denied</b></blockquote>\n"                
                 f"<b>❗ This command is only for authorized users.</b>\n\n"
-                f"👉 Send your ID to admin or use /upgrade to request access."
+                f"👉 Send your This to admin 🧑‍💼 By Button Your ID:</b> <code>{m.chat.id}</code> or use /upgrade to request access."
             ),
             reply_markup=InlineKeyboardMarkup(
                 [
                     [InlineKeyboardButton("🔑 Upgrade Access", callback_data="upgrade")],
-                    [InlineKeyboardButton("📞 Contact Admin", url="https://t.me/YourAdminUsername")]
+                    [InlineKeyboardButton("📞 Contact Admin", url="http://t.me/CHOSEN_ONEx_bot")]
                 ]
             )
         )
@@ -497,7 +520,7 @@ async def txt_handler(bot: Client, m: Message):
         reply_markup=InlineKeyboardMarkup(
             [
                 [InlineKeyboardButton("❓ Help", callback_data="help_drm")],
-                [InlineKeyboardButton("📞 Contact Support", url="https://t.me/YourAdminUsername")]
+                [InlineKeyboardButton("📞 Contact Support", url="http://t.me/CHOSEN_ONEx_bot")]
             ]
         )
     )
